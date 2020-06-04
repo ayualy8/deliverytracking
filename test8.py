@@ -180,7 +180,7 @@ class Application(tk.Frame):
         elif len(n) == 13 and n[:2] == '5P':
             return '190094'
         # SunYou shipping IP is added that starts with SY-- 4th of June
-        else len(n) == 13 and n[:2] == "SY":
+        elif len(n) == 13 and n[:2] == "SY":
             return '190072'
         elif len(n) == 20 and n[:2] == '00':
             return '190002'
