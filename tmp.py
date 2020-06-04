@@ -75,6 +75,9 @@ def get_id( n):
         return '190008'
     elif len(n) == 12 and n[0] == '5':
         return '100040'
+    # Another 4px IP is added here for the update on the 24th of May, TN starts with 5P
+    elif len(n) == 13 and n[:2] == '5P':
+        return '190094'
     elif len(n) == 20 and n[:2] == '00':
         return '190002'
     else:
