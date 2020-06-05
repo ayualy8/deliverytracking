@@ -65,7 +65,7 @@ class Application(tk.Frame):
         df.dropna(inplace=True)
         o_nums = df["Order Number"]
 
-        columns = ["order number", "tracking number", "status", "days in transit", "country"]
+        columns = ["order number", "tracking number", "status", "days in transit", "country", "Current"]
         df_new = pd.DataFrame(columns=columns)
 
         options = Options()
@@ -109,20 +109,24 @@ class Application(tk.Frame):
                         else:
                             print("kitaka?")
                             if 'Delivered' in data[1]:
-                                country_to = "TEST"
                                 country_to = driver.find_element_by_xpath('//*[@id="tn-{}"]/div[1]/div[2]/div[3]'.format(num)).text
+                                current = ""
                                 #datatimes = driver.find_elements_by_xpath('//*[@id="tn-{}"]/div[2]/div[1]/dl[2]/dd'.format(num))
                                 #line_base = datatimes[-1].text.split("\n")[1]
                                 #j = -2
                                 #while datatimes[j].text.split("\n")[1]==line_base:
                                 #    j -= 1
                                 print(country_to)
+                                print(current)
                                 #print(datatimes[j].text.split("\n")[0])
                                 df_tmp = pd.Series(
-                                    [o_num, num, 'Delivered', re.search(r'\d+', data[1]).group(), country_to], index=columns)
+                                    [o_num, num, 'Delivered', re.search(r'\d+', data[1]).group(), country_to, current], index=columns)
                             else:
+                                country_to = driver.find_element_by_xpath('//*[@id="tn-{}"]/div[1]/div[2]/div[3]'.format(num)).text
+                                current =    driver.find_element_by_xpath('//*[@id="tn-{}"]/div[1]/div[3]/p/span'.format(num)).text
                                 df_tmp = pd.Series(
-                                    [o_num, num, data[1], -1, country_to], index=columns)
+                                    [o_num, num, data[1], -1, country_to, current], index=columns)
+                                print(country_to)
 
                             df_new = df_new.append(df_tmp, ignore_index=True)
 
