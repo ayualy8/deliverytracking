@@ -1,4 +1,4 @@
-
+#attempts to click the translation button on 17track  
 import pandas as pd
 import math
 import numpy as np
@@ -107,18 +107,28 @@ class Application(tk.Frame):
                             now = time.time()-start
                             avg_time = round((avg_time*cnt+now)/(cnt+1))
                         else:
-                            print("kitaka?")
+                            print("delivered")
                             if 'Delivered' in data[1]:
                                 country_to = driver.find_element_by_xpath('//*[@id="tn-{}"]/div[1]/div[2]/div[3]'.format(num)).text
                                 current = ""
-                           
+
                                 print(country_to)
                                 print(current)
                                 df_tmp = pd.Series(
                                     [o_num, num, 'Delivered', re.search(r'\d+', data[1]).group(), country_to, current], index=columns)
                             else:
+                                print("in Transit")
                                 country_to = driver.find_element_by_xpath('//*[@id="tn-{}"]/div[1]/div[2]/div[3]'.format(num)).text
+                                #current =    driver.find_element_by_xpath('//*[@id="tn-{}"]/div[1]/div[3]/p/span'.format(num)).text
+
+                                #Can I please click a button to make it in English?? Please???
+                                translate = driver.find_element_by_xpath('//*[@id="{}"]/div[2]/div[2]/div[1]/button[2]'.format(num))[0]
+                                translate.click()
+                                selectEn = driver.find_element_by_xpath('//*[@id="tn-{}"]/div[2]/div[2]/div[2]/div/button'.format(num))[0]
+                                selectEn.click()
+
                                 current =    driver.find_element_by_xpath('//*[@id="tn-{}"]/div[1]/div[3]/p/span'.format(num)).text
+
                                 df_tmp = pd.Series(
                                     [o_num, num, data[1], -1, country_to, current], index=columns)
 
@@ -136,7 +146,7 @@ class Application(tk.Frame):
                             self.p_bar.step(1)
                             self.p_bar.update()
                     except:
-                        print("kitayo!")
+                        print("This one takes time ＿φ(￣ー￣ )")
                         new_o_nums.append(o_num)
                         now = time.time()-start
                         avg_time = round((avg_time*cnt+now)/(cnt+1))
