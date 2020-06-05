@@ -1,4 +1,3 @@
-#attempts to click the translation button on 17track  
 import pandas as pd
 import math
 import numpy as np
@@ -65,7 +64,7 @@ class Application(tk.Frame):
         df.dropna(inplace=True)
         o_nums = df["Order Number"]
 
-        columns = ["order number", "tracking number", "status", "days in transit", "country", "Current"]
+        columns = ["order number", "tracking number", "status", "days in transit", "country", "Current Location"]
         df_new = pd.DataFrame(columns=columns)
 
         options = Options()
@@ -122,10 +121,12 @@ class Application(tk.Frame):
                                 #current =    driver.find_element_by_xpath('//*[@id="tn-{}"]/div[1]/div[3]/p/span'.format(num)).text
 
                                 #Can I please click a button to make it in English?? Please???
-                                translate = driver.find_element_by_xpath('//*[@id="tn-{}"]/div[2]/div[2]/div[1]/button[2]'.format(num))[0]
-                                translate.click()
-                                selectEn = driver.find_element_by_xpath('//*[@id="tn-{}"]/div[2]/div[2]/div[2]/div/button'.format(num))[0]
-                                selectEn.click()
+                                if EC.element_to_be_clickable(By.XPATH, "XPATH"):
+                                    print "true"
+                                    translate = driver.find_element_by_xpath('//*[@id="tn-{}"]/div[2]/div[2]/div[1]/button[2]'.format(num))
+                                    translate.click()
+                                    selectEn = driver.find_element_by_xpath('//*[@id="yq-modal-translate"]/div/div/div[2]/div[1]/div/div/a[1]')
+                                    selectEn.click()
 
                                 current =    driver.find_element_by_xpath('//*[@id="tn-{}"]/div[1]/div[3]/p/span'.format(num)).text
 
