@@ -122,7 +122,7 @@ class Application(tk.Frame):
                                 #current =    driver.find_element_by_xpath('//*[@id="tn-{}"]/div[1]/div[3]/p/span'.format(num)).text
 
                                 #Can I please click a button to make it in English?? Please???
-                                translate = driver.find_element_by_xpath('//*[@id="{}"]/div[2]/div[2]/div[1]/button[2]'.format(num))[0]
+                                translate = driver.find_element_by_xpath('//*[@id="tn-{}"]/div[2]/div[2]/div[1]/button[2]'.format(num))[0]
                                 translate.click()
                                 selectEn = driver.find_element_by_xpath('//*[@id="tn-{}"]/div[2]/div[2]/div[2]/div/button'.format(num))[0]
                                 selectEn.click()
