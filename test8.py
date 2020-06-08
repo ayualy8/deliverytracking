@@ -2,7 +2,7 @@ import pandas as pd
 import math
 import numpy as np
 import re
-import argparse
+import datetime
 import time
 import tkinter as tk
 from tkinter import filedialog
@@ -64,7 +64,7 @@ class Application(tk.Frame):
         df.dropna(inplace=True)
         o_nums = df["Order Number"]
 
-        columns = ["order number", "tracking number", "status", "days in transit", "country", "Current Location"]
+        columns = ["order number","order date", "tracking number", "status","days after order", "days in transit", "country_to","current"]
         df_new = pd.DataFrame(columns=columns)
 
         options = Options()
@@ -82,10 +82,11 @@ class Application(tk.Frame):
         while not is_finish:
             new_o_nums = []
             for i, o_num in enumerate(o_nums):
-                nums = df[df["Order Number"] == o_num]
-                nums = str(nums.iloc[0]["Tracking Numbers"])
-
+                a = df[df["Order Number"] == o_num]
+                nums = str(a.iloc[0]["Tracking Numbers"])
                 nums = list(set(nums.split(",")))
+
+                o_date = a.iloc[0]["Order Date"]
 
                 for num in nums:
                     start = time.time()
@@ -94,45 +95,29 @@ class Application(tk.Frame):
                     url = "https://t.17track.net/en#nums={}{}".format(
                         num, c_id)
                     driver.get(url)
-
                     time.sleep(2)
                     WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.CLASS_NAME, "yqcr-ps")))
                     try:
                         data = driver.find_element_by_class_name("yqcr-ps")
                         data = data.text.split('\n')
                         if "Tracking" in data or "" in data:
-                            print("kita!")
                             new_o_nums.append(o_num)
                             now = time.time()-start
                             avg_time = round((avg_time*cnt+now)/(cnt+1))
                         else:
-                            print("delivered")
+                            now_date = driver.find_element_by_class_name("yqcr-last-event-pc").find_element(By.TAG_NAME, 'time')
+                            now_date = now_date.text.split(" ")[0]
+                            now_date = datetime.datetime.strptime(now_date, '%Y-%m-%d')
+                            o_date_ = datetime.datetime.strptime(o_date, '%m/%d/%Y')
                             if 'Delivered' in data[1]:
                                 country_to = driver.find_element_by_xpath('//*[@id="tn-{}"]/div[1]/div[2]/div[3]'.format(num)).text
-                                current = ""
-
-                                print(country_to)
-                                print(current)
+                                country_to = country_to.split("\n")[0]
                                 df_tmp = pd.Series(
-                                    [o_num, num, 'Delivered', re.search(r'\d+', data[1]).group(), country_to, current], index=columns)
+                                    [o_num,o_date, num, 'Delivered',(now_date-o_date_).days, re.search(r'\d+', data[1]).group(), country_to,""], index=columns)
                             else:
-                                print("in Transit")
-                                country_to = driver.find_element_by_xpath('//*[@id="tn-{}"]/div[1]/div[2]/div[3]'.format(num)).text
-                                #current =    driver.find_element_by_xpath('//*[@id="tn-{}"]/div[1]/div[3]/p/span'.format(num)).text
-
-                                #Can I please click a button to make it in English?? Please???
-                                if EC.element_to_be_clickable(By.XPATH, "XPATH"):
-                                    print "true"
-                                    translate = driver.find_element_by_xpath('//*[@id="tn-{}"]/div[2]/div[2]/div[1]/button[2]'.format(num))
-                                    translate.click()
-                                    selectEn = driver.find_element_by_xpath('//*[@id="yq-modal-translate"]/div/div/div[2]/div[1]/div/div/a[1]')
-                                    selectEn.click()
-
-                                current =    driver.find_element_by_xpath('//*[@id="tn-{}"]/div[1]/div[3]/p/span'.format(num)).text
-
+                                current = driver.find_element_by_class_name("yqcr-last-event-pc").find_element(By.TAG_NAME, 'span').text
                                 df_tmp = pd.Series(
-                                    [o_num, num, data[1], -1, country_to, current], index=columns)
-
+                                    [o_num,o_date, num, data[1],(now_date-o_date_).days, -1,-1,current], index=columns)
                             df_new = df_new.append(df_tmp, ignore_index=True)
 
                             tmp_time = round(time.time() - time_s)
@@ -147,17 +132,19 @@ class Application(tk.Frame):
                             self.p_bar.step(1)
                             self.p_bar.update()
                     except:
-                        print("This one takes time ＿φ(￣ー￣ )")
+                        import traceback
+                        traceback.print_exc()
                         new_o_nums.append(o_num)
                         now = time.time()-start
                         avg_time = round((avg_time*cnt+now)/(cnt+1))
 
+                
             o_nums = new_o_nums
-            is_finish = len(o_nums) ==0
+            is_finish = len(o_nums) == 0
         df_new.sort_values('order number', ascending=False)
         # df_new = df_new.replace([-1], np.nan)
         df_new.to_csv("sample.csv")
-        self.text2.set("finished! the result is saved as sample.csv")
+        self.text2.set("finish! the result is saved as sample.csv")
         driver.close()
         driver.quit()
 
