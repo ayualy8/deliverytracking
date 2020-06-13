@@ -120,10 +120,11 @@ class Application(tk.Frame):
 
                                 if num[0] == 'L' or num[:2] == 'EV':
                                     print('Okie(*´꒳`*)')
-                                    now_date = driver.find_element_by_xpath("//*[@id='tn-{}']/div[2]/div[1]/dl[1]/dd[3]/div/time".format(num))
-                                    now_date = now_date.text.split(" ")[0]
-                                    now_date = datetime.datetime.strptime(now_date, '%Y-%m-%d')
-                                    print(now_date)
+                                    shipdate = driver.find_element_by_xpath("//*[@id='tn-{}']/div[2]/div[1]/dl[1]/dd[8]/div/time".format(num))
+                                    shipdate = shipdate.text.split(" ")[0]
+                                    shipdate = datetime.datetime.strptime(shipdate, '%Y-%m-%d')
+                                    print(num)
+                                    print(shipdate)
 
                                 else:
                                     continue
