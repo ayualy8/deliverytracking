@@ -161,7 +161,7 @@ class Application(tk.Frame):
             is_finish = len(o_nums) == 0
         df_new.sort_values('order number', ascending=False)
         # df_new = df_new.replace([-1], np.nan)
-        df_new.to_csv("pets_jp_tn_may_4-25.csv")
+        df_new.to_csv("sample.csv")
         self.text2.set("finished! the result is saved as sample.csv")
         driver.close()
         driver.quit()
