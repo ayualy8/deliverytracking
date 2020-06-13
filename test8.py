@@ -115,7 +115,7 @@ class Application(tk.Frame):
                             if 'Delivered' in data[1]:
                                 country_to = driver.find_element_by_xpath('//*[@id="tn-{}"]/div[1]/div[2]/div[3]'.format(num)).text
                                 country_to = country_to.split("\n")[0]
-                                print(num[0:2])
+                                print(num)
 
                                 #num = str(num)
                                 #if num[0] == 'L' or get_id(n[0]) == 'EV':
