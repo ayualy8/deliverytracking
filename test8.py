@@ -61,6 +61,7 @@ class Application(tk.Frame):
     def main(self):
         path_csv = self.csvname
 
+        csvname =
         df = pd.read_csv(path_csv)
         print(df.head())
         df.dropna(inplace=True)
@@ -114,6 +115,13 @@ class Application(tk.Frame):
                             if 'Delivered' in data[1]:
                                 country_to = driver.find_element_by_xpath('//*[@id="tn-{}"]/div[1]/div[2]/div[3]'.format(num)).text
                                 country_to = country_to.split("\n")[0]
+                                print(num[0:2])
+
+                                #num = str(num)
+                                #if num[0] == 'L' or get_id(n[0]) == 'EV':
+                                #    now_date = driver.find_element_by_xpath("//*[@id='tn-{}']/div[2]/div[1]/dl[1]/dd[3]/div/time".format(num)).text
+                                #    now_date = now_date = datetime.datetime.strptime(now_date, '%Y-%m-%d')
+
                                 df_tmp = pd.Series(
                                     [o_num,o_date, num, 'Delivered',(now_date-o_date_).days, re.search(r'\d+', data[1]).group(), country_to,""], index=columns)
                             else:
@@ -121,7 +129,7 @@ class Application(tk.Frame):
                                 country_to = driver.find_element_by_xpath('//*[@id="tn-{}"]/div[1]/div[2]/div[3]'.format(num)).text
                                 country_to = country_to.split("\n")[0]
                                 df_tmp = pd.Series(
-                                    [o_num,o_date, num, data[1],(now_date-o_date_).days, -1,country_to,current], index=columns)
+                                    [o_num,o_date, num, data[1],"", "",country_to,current], index=columns)
                             df_new = df_new.append(df_tmp, ignore_index=True)
 
                             tmp_time = round(time.time() - time_s)
