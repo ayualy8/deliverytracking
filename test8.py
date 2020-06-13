@@ -60,8 +60,9 @@ class Application(tk.Frame):
 
     def main(self):
         path_csv = self.csvname
+        result = self.csvname.split("/")[-1]
 
-        csvname =
+
         df = pd.read_csv(path_csv)
         print(df.head())
         df.dropna(inplace=True)
@@ -115,9 +116,8 @@ class Application(tk.Frame):
                             if 'Delivered' in data[1]:
                                 country_to = driver.find_element_by_xpath('//*[@id="tn-{}"]/div[1]/div[2]/div[3]'.format(num)).text
                                 country_to = country_to.split("\n")[0]
-                                print(num)
+                                print(num[0:2])
 
-                                #num = str(num)
                                 #if num[0] == 'L' or get_id(n[0]) == 'EV':
                                 #    now_date = driver.find_element_by_xpath("//*[@id='tn-{}']/div[2]/div[1]/dl[1]/dd[3]/div/time".format(num)).text
                                 #    now_date = now_date = datetime.datetime.strptime(now_date, '%Y-%m-%d')
@@ -159,17 +159,13 @@ class Application(tk.Frame):
                             now = time.time()-start
                             avg_time = round((avg_time*cnt+now)/(cnt+1))
 
-                        #else:
-                            #print("The exception is working fine!")
-                            #data = "could not be found"
-                            #continue
 
 
             o_nums = new_o_nums
             is_finish = len(o_nums) == 0
         df_new.sort_values('order number', ascending=False)
         # df_new = df_new.replace([-1], np.nan)
-        df_new.to_csv("sample.csv")
+        df_new.to_csv("R:{}.csv".format(result))
         self.text2.set("finished! the result is saved as sample.csv")
         driver.close()
         driver.quit()
