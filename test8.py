@@ -1,4 +1,3 @@
-#This still requires the improvement of deleting the ones with NAN  
 import pandas as pd
 import math
 import numpy as np
@@ -69,7 +68,7 @@ class Application(tk.Frame):
         df.dropna(inplace=True)
         o_nums = df["Order Number"]
 
-        columns = ["order number","order date", "tracking number", "status","days after order", "days in transit", "country_to","current"]
+        columns = ["order number","order date", "tracking number", "status","days after order", "days in transit", "Days to ship", "country_to","current"]
         df_new = pd.DataFrame(columns=columns)
 
         options = Options()
@@ -128,17 +127,20 @@ class Application(tk.Frame):
                                     print(shipdate)
 
                                     df_tmp = pd.Series(
-                                        [o_num,o_date, num, 'Delivered',(now_date-o_date_).days, (now_date - shipdate).days, country_to,""], index=columns)
+                                        [o_num,o_date, num, 'Delivered',(now_date-o_date_).days, (now_date - shipdate).days, (shipdate - o_date_).days, country_to,""], index=columns)
 
                                 else:
+                                    shipdate = shipdate = driver.find_element_by_xpath("//*[@id='tn-{}']/div[2]/div[1]/dl[2]/dd[last()]/div/time".format(num))
+                                    shipdate = shipdate.text.split(" ")[0]
+                                    shipdate = datetime.datetime.strptime(shipdate, '%Y-%m-%d')
                                     df_tmp = pd.Series(
-                                        [o_num,o_date, num, 'Delivered',(now_date-o_date_).days, re.search(r'\d+', data[1]), country_to,""], index=columns)
+                                        [o_num,o_date, num, 'Delivered',(now_date-o_date_).days, re.search(r'\d+', data[1]).group(), (shipdate - o_date_).days, country_to,""], index=columns)
                             else:
                                 current = driver.find_element_by_class_name("yqcr-last-event-pc").find_element(By.TAG_NAME, 'span').text
                                 country_to = driver.find_element_by_xpath('//*[@id="tn-{}"]/div[1]/div[2]/div[3]'.format(num)).text
                                 country_to = country_to.split("\n")[0]
                                 df_tmp = pd.Series(
-                                    [o_num,o_date, num, data[1],"", "",country_to,current], index=columns)
+                                    [o_num,o_date, num, data[1],"", "", "", country_to,current], index=columns)
                             df_new = df_new.append(df_tmp, ignore_index=True)
 
                             tmp_time = round(time.time() - time_s)
