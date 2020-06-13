@@ -13,6 +13,7 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
+from selenium.common.exceptions import NoSuchElementException
 
 
 class Application(tk.Frame):
@@ -61,6 +62,7 @@ class Application(tk.Frame):
         path_csv = self.csvname
 
         df = pd.read_csv(path_csv)
+        print(df.head())
         df.dropna(inplace=True)
         o_nums = df["Order Number"]
 
@@ -116,8 +118,10 @@ class Application(tk.Frame):
                                     [o_num,o_date, num, 'Delivered',(now_date-o_date_).days, re.search(r'\d+', data[1]).group(), country_to,""], index=columns)
                             else:
                                 current = driver.find_element_by_class_name("yqcr-last-event-pc").find_element(By.TAG_NAME, 'span').text
+                                country_to = driver.find_element_by_xpath('//*[@id="tn-{}"]/div[1]/div[2]/div[3]'.format(num)).text
+                                country_to = country_to.split("\n")[0]
                                 df_tmp = pd.Series(
-                                    [o_num,o_date, num, data[1],(now_date-o_date_).days, -1,-1,current], index=columns)
+                                    [o_num,o_date, num, data[1],(now_date-o_date_).days, -1,country_to,current], index=columns)
                             df_new = df_new.append(df_tmp, ignore_index=True)
 
                             tmp_time = round(time.time() - time_s)
@@ -134,17 +138,31 @@ class Application(tk.Frame):
                     except:
                         import traceback
                         traceback.print_exc()
-                        new_o_nums.append(o_num)
-                        now = time.time()-start
-                        avg_time = round((avg_time*cnt+now)/(cnt+1))
+                        #from here my debugging:
+                        if NoSuchElementException:
+                            blank = [""]
+                            blank.append(o_num)
+                            now = time.time()-start
+                            avg_time = round((avg_time*cnt+now)/(cnt+1))
 
-                
+
+                        else:
+                            new_o_nums.append(o_num)
+                            now = time.time()-start
+                            avg_time = round((avg_time*cnt+now)/(cnt+1))
+
+                        #else:
+                            #print("The exception is working fine!")
+                            #data = "could not be found"
+                            #continue
+
+
             o_nums = new_o_nums
             is_finish = len(o_nums) == 0
         df_new.sort_values('order number', ascending=False)
         # df_new = df_new.replace([-1], np.nan)
-        df_new.to_csv("sample.csv")
-        self.text2.set("finish! the result is saved as sample.csv")
+        df_new.to_csv("pets_jp_tn_may_4-25.csv")
+        self.text2.set("finished! the result is saved as sample.csv")
         driver.close()
         driver.quit()
 
