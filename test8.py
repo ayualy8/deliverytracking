@@ -118,9 +118,15 @@ class Application(tk.Frame):
                                 country_to = country_to.split("\n")[0]
                                 print(num[0:2])
 
-                                #if num[0] == 'L' or get_id(n[0]) == 'EV':
-                                #    now_date = driver.find_element_by_xpath("//*[@id='tn-{}']/div[2]/div[1]/dl[1]/dd[3]/div/time".format(num)).text
-                                #    now_date = now_date = datetime.datetime.strptime(now_date, '%Y-%m-%d')
+                                if num[0] == 'L' or num[:2] == 'EV':
+                                    print('Okie(*´꒳`*)')
+                                    now_date = driver.find_element_by_xpath("//*[@id='tn-{}']/div[2]/div[1]/dl[1]/dd[3]/div/time".format(num))
+                                    now_date = now_date.text.split(" ")[0]
+                                    now_date = datetime.datetime.strptime(now_date, '%Y-%m-%d')
+                                    print(now_date)
+
+                                else:
+                                    continue
 
                                 df_tmp = pd.Series(
                                     [o_num,o_date, num, 'Delivered',(now_date-o_date_).days, re.search(r'\d+', data[1]).group(), country_to,""], index=columns)
