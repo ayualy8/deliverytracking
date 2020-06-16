@@ -65,8 +65,7 @@ class Application(tk.Frame):
 
         df = pd.read_csv(path_csv)
         print(df.head())
-        # ↓↓↓ COPY AND PASTE ができないのはこの子のせいなのよ
-        df.dropna(inplace=True)　　　　
+        df.dropna(inplace=True)
         o_nums = df["Order Number"]
 
         columns = ["order number","order date", "tracking number", "status","days after order", "days in transit", "Days to ship", "country_to","current"]
@@ -117,12 +116,15 @@ class Application(tk.Frame):
                             if 'Delivered' in data[1]:
                                 country_to = driver.find_element_by_xpath('//*[@id="tn-{}"]/div[1]/div[2]/div[3]'.format(num)).text
                                 country_to = country_to.split("\n")[0]
+                                print(num[0:2])
 
                                 if num[0] == 'L' or num[:2] == 'EV':
                                     shipdate = driver.find_element_by_xpath("//*[@id='tn-{}']/div[2]/div[1]/dl[1]/dd[last()]/div/time".format(num))
                                     shipdate = shipdate.text.split(" ")[0]
                                     shipdate = datetime.datetime.strptime(shipdate, '%Y-%m-%d')
-                                    
+                                    print(num)
+                                    print(shipdate)
+
                                     df_tmp = pd.Series(
                                         [o_num,o_date, num, 'Delivered',(now_date-o_date_).days, (now_date - shipdate).days, (shipdate - o_date_).days, country_to,""], index=columns)
 
@@ -130,17 +132,14 @@ class Application(tk.Frame):
                                     shipdate = shipdate = driver.find_element_by_xpath("//*[@id='tn-{}']/div[2]/div[1]/dl[2]/dd[last()]/div/time".format(num))
                                     shipdate = shipdate.text.split(" ")[0]
                                     shipdate = datetime.datetime.strptime(shipdate, '%Y-%m-%d')
-                                    
                                     df_tmp = pd.Series(
                                         [o_num,o_date, num, 'Delivered',(now_date-o_date_).days, re.search(r'\d+', data[1]).group(), (shipdate - o_date_).days, country_to,""], index=columns)
-                                    
                             else:
                                 current = driver.find_element_by_class_name("yqcr-last-event-pc").find_element(By.TAG_NAME, 'span').text
                                 country_to = driver.find_element_by_xpath('//*[@id="tn-{}"]/div[1]/div[2]/div[3]'.format(num)).text
                                 country_to = country_to.split("\n")[0]
                                 df_tmp = pd.Series(
                                     [o_num,o_date, num, data[1],"", "", "", country_to,current], index=columns)
-                            
                             df_new = df_new.append(df_tmp, ignore_index=True)
 
                             tmp_time = round(time.time() - time_s)
@@ -164,10 +163,13 @@ class Application(tk.Frame):
                             now = time.time()-start
                             avg_time = round((avg_time*cnt+now)/(cnt+1))
 
+
                         else:
                             new_o_nums.append(o_num)
                             now = time.time()-start
                             avg_time = round((avg_time*cnt+now)/(cnt+1))
+
+
 
             o_nums = new_o_nums
             is_finish = len(o_nums) == 0
@@ -177,7 +179,6 @@ class Application(tk.Frame):
         self.text2.set("finished! the result is saved as sample.csv")
         driver.close()
         driver.quit()
-        
 
     def get_id(self, n):
         if n[0] == 'L':
@@ -200,7 +201,7 @@ class Application(tk.Frame):
             return '190002'
         else:
             return ''
-        
+
 
 if __name__ == "__main__":
     root = tk.Tk()
