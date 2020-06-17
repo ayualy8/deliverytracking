@@ -1,6 +1,8 @@
 import pandas as pd
 import math
 import numpy as np
+import sys
+import os
 import re
 import datetime
 import time
@@ -13,7 +15,6 @@ from selenium.webdriver.common.by import By
 from selenium.webdriver.support.ui import WebDriverWait
 from selenium.webdriver.support import expected_conditions as EC
 from selenium.webdriver.chrome.options import Options
-from selenium.common.exceptions import NoSuchElementException
 
 
 class Application(tk.Frame):
@@ -64,7 +65,6 @@ class Application(tk.Frame):
 
 
         df = pd.read_csv(path_csv)
-        print(df.head())
         df.dropna(inplace=True)
         o_nums = df["Order Number"]
 
@@ -75,7 +75,14 @@ class Application(tk.Frame):
         options.add_argument('--headless')
         options.add_argument('--disable-gpu')
         options.add_argument('--user-agent=hoge')
-        driver = webdriver.Chrome(options=options)
+
+        def resource_path(relative_path):
+            try:
+                base_path = sys._MEIPASS
+            except Exception:
+                base_path = os.path.dirname(__file__)
+            return os.path.join(base_path, relative_path)
+        driver = webdriver.Chrome(executable_path=resource_path('./driver/chromedriver'), options=options)
 
         is_finish = False
         size = len(o_nums)
@@ -116,14 +123,12 @@ class Application(tk.Frame):
                             if 'Delivered' in data[1]:
                                 country_to = driver.find_element_by_xpath('//*[@id="tn-{}"]/div[1]/div[2]/div[3]'.format(num)).text
                                 country_to = country_to.split("\n")[0]
-                                print(num[0:2])
 
                                 if num[0] == 'L' or num[:2] == 'EV':
                                     shipdate = driver.find_element_by_xpath("//*[@id='tn-{}']/div[2]/div[1]/dl[1]/dd[last()]/div/time".format(num))
                                     shipdate = shipdate.text.split(" ")[0]
                                     shipdate = datetime.datetime.strptime(shipdate, '%Y-%m-%d')
-                                    print(num)
-                                    print(shipdate)
+
 
                                     df_tmp = pd.Series(
                                         [o_num,o_date, num, 'Delivered',(now_date-o_date_).days, (now_date - shipdate).days, (shipdate - o_date_).days, country_to,""], index=columns)
@@ -175,8 +180,11 @@ class Application(tk.Frame):
             is_finish = len(o_nums) == 0
         df_new.sort_values('order number', ascending=False)
         # df_new = df_new.replace([-1], np.nan)
-        df_new.to_csv("R:{}.csv".format(result))
-        self.text2.set("finished! the result is saved as sample.csv")
+        result_name = "R_"+os.path.basename(self.csvname)
+        fname = filedialog.asksaveasfilename(initialfile=result_name)
+        print(fname)
+        df_new.to_csv(fname)
+        self.text2.set("finished! the result is saved in {}".format(fname))
         driver.close()
         driver.quit()
 
