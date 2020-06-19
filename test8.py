@@ -69,7 +69,7 @@ class Application(tk.Frame):
         df.dropna(inplace=True)
         o_nums = df["Order Number"]
 
-        columns = ["order number","order date", "tracking number", "status","days after order", "days in transit", "Days to ship", "country_to","current"]
+        columns = ["order number","order date", "tracking number", "status","days after order", "days in transit", "days to ship", "country_to","current"]
         df_new = pd.DataFrame(columns=columns)
 
         options = Options()
